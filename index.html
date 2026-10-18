@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alma - Academia Virtual de Damas</title>
+    <meta name="description" content="Academia Virtual de Damas - Aprenda combinações nas aberturas com animações interativas no tabuleiro">
+    <meta name="author" content="Françualdo G de Sousa">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Alma - Academia Virtual de Damas">
+    <meta property="og:description" content="Pratique estratégias e movimentos de forma intuitiva e interativa">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://t4sh3ll.github.io/academia-virtual-damas">
+    
+    <!-- Styles -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ffd700, #ffA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        
+        .author {
+            font-style: italic;
+            color: #888;
+        }
+        
+        .board-section {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .board-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .board-container {
+            background: rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            max-width: 500px;
+            margin: 0 auto;
+            background: #333;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .square {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .square.light {
+            background: #f0d9b5;
+        }
+        
+        .square.dark {
+            background: #b58863;
+        }
+        
+        .square:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+        }
+        
+        .square.selected {
+            background: #ffd700 !important;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .piece {
+            font-size: 1em;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+            transition: all 0.3s ease;
+        }
+        
+        .piece.king {
+            filter: drop-shadow(0 0 10px #ffd700);
+        }
+        
+        .sidebar {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 20px;
+        }
+        
+        .sidebar h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ffd700, #ffA500);
+            color: #1a1a2e;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,215,0,0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .status-text {
+            font-size: 1.1em;
+            color: #ffd700;
+        }
+        
+        .content-section {
+            background: rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .content-section h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .content-section p {
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .feature:hover {
+            transform: translateY(-5px);
+            background: rgba(255,215,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .feature h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .feature p {
+            color: #aaa;
+            font-size: 0.9em;
+        }
+        
+        .material-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .material-list li {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .material-list li:hover {
+            background: rgba(255,215,0,0.1);
+            transform: translateX(5px);
+        }
+        
+        .material-list li::before {
+            content: "📚";
+            font-size: 1.5em;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 50px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.5em;
+            color: #ffd700;
+        }
+        
+        .loading::after {
+            content: "...";
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>♔ Alma ♚</h1>
+            <p class="subtitle">Academia Virtual de Damas</p>
+            <p class="author">Por Françualdo G de Sousa</p>
+        </header>
+        
+        <div class="board-section">
+            <div class="board-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">Tabuleiro Virtual Animado</h2>
+                <div class="status">
+                    <p class="status-text" id="status">NENHUM JOGO CARREGADO</p>
+                </div>
+                <div style="margin-top: 20px;">
+                    <div class="board" id="board"></div>
+                </div>
+                <div class="controls" style="margin-top: 20px;">
+                    <button class="btn" onclick="loadExample()">🎮 Carregar Exemplo</button>
+                    <button class="btn btn-secondary" onclick="clearBoard()">🗑️ Limpar Tabuleiro</button>
+                    <button class="btn btn-secondary" onclick="toggleAnimation()">✨ Animar Movimento</button>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <h3>📖 Combinações</h3>
+                <div class="controls">
+                    <button class="btn" onclick="loadCombination(1)">Combinação 1: Abertura Clássica</button>
+                    <button class="btn" onclick="loadCombination(2)">Combinação 2: Ataque Duplo</button>
+                    <button class="btn" onclick="loadCombination(3)">Combinação 3: Captura em Coroa</button>
+                    <button class="btn btn-secondary" onclick="nextCombination()">➡️ Próxima Combinação</button>
+                    <button class="btn btn-secondary" onclick="prevCombination()">⬅️ Combinação Anterior</button>
+                </div>
+                <div class="status" style="margin-top: 20px;">
+                    <p id="combo-title" style="color: #ffd700; font-weight: bold;">Selecione uma combinação</p>
+                    <p id="combo-desc" style="color: #aaa; margin-top: 10px; font-size: 0.9em;">Explore as principais combinações das aberturas</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>🎯 Sobre o Alma</h2>
+            <p>
+                Seu principal recurso é o <strong>Tabuleiro Virtual animado</strong>, que permite praticar estratégias 
+                e movimentos de forma intuitiva e interativa. A grande inovação está na conversão de materiais 
+                didáticos antes disponíveis somente em PDF para animações reproduzidas diretamente no tabuleiro.
+            </p>
+            <p>
+                Essa experiência torna o aprendizado mais dinâmico, atraente e alinhado às tecnologias da era atual.
+            </p>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🎮</div>
+                    <h3>Interativo</h3>
+                    <p>Clique nas peças para selecionar e mova-as pelo tabuleiro</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✨</div>
+                    <h3>Animado</h3>
+                    <p>Visualize movimentos e combinações com animações suaves</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📚</div>
+                    <h3>Educativo</h3>
+                    <p>Aprenda com exemplos práticos de combinações reais</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Competitivo</h3>
+                    <p>Teste suas habilidades contra padrões de jogo reais</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>📚 Relação do Material</h2>
+            <p>Conteúdos organizados para um estudo completo e progressivo:</p>
+            <ul class="material-list">
+                <li>Curso Treinamento de Cálculo</li>
+                <li>Combinações nas Aberturas</li>
+                <li>48 Aberturas Analisadas</li>
+                <li>Coleção de Livros e Apostilas Brasileiros</li>
+                <li>Coleção de Livros Russos Traduzidos (aberturas)</li>
+                <li>Coleção de Livros Russos Traduzidos (meio jogo)</li>
+                <li>Coleção de Livros Russos Traduzidos (finais)</li>
+                <li>Coleção de Livros Russos Traduzidos (táticas)</li>
+                <li>Erros graves de Aberturas nas 7 saídas</li>
+                <li>Padrões de Combinações (Método Russo)</li>
+                <li>Temas Diversos (Método Russo)</li>
+                <li>Estudos de Tablitas e Promotions</li>
+                <li>Jogos Selecionados - Campeões Mundiais</li>
+                <li>Jogos Selecionados - Campeões Brasileiros</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <p>Alma - Academia Virtual de Damas © 2026</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Desenvolvido com ❤️ para o aprendizado de damas
+            </p>
+        </footer>
+    </div>
+    
+    <script>
+        // Estado do jogo
+        let board = Array(8).fill(null).map(() => Array(8).fill(null));
+        let selectedPiece = null;
+        let animationEnabled = false;
+        let currentCombination = 0;
+        
+        // Peças
+        const PIECES = {
+            man: '♟',
+            king: '♚',
+            manOpponent: '♙',
+            kingOpponent: '♛'
+        };
+        
+        // Combinações de exemplo
+        const combinations = [
+            {
+                title: "Combinação 1: Abertura Clássica",
+                desc: "Padrão inicial de desenvolvimento das peças",
+                setup: [
+                    [null, 'man', null, 'man', null, 'man', null, 'man'],
+                    ['man', null, 'man', null, 'man', null, 'man', null],
+                    [null, 'man', null, 'man', null, 'man', null, 'man'],
+                    [null, null, null, null, null, null, null, null],
+                    [null, null, null, null, null, null, null, null],
+                    ['manOpponent', null, 'manOpponent', null, 'manOpponent', null, 'manOpponent', null],
+                    [null, 'manOpponent', null, 'manOpponent', null, 'manOpponent', null, 'manOpponent'],
+                    ['manOpponent', null, 'manOpponent', null, 'manOpponent', null, 'manOpponent', null]
+                ]
+            },
+            {
+                title: "Combinação 2: Ataque Duplo",
+                desc: "Peça avançada pode capturar duas peças adversárias",
+                setup: [
+                    [null, null, null, null, null, null, null, null],
+                    [null, null, null, null, null, null, null, null],
+                    [null, null, 'man', null, null, null, null, null],
+                    [null, null, null, 'manOpponent', null, null, null, null],
+                    [null, null, null, null, null, 'manOpponent', null, null],
+                    [null, null, null, null, null, null, null, null],
+                    [null, null, null, null, null, null, null, null],
+                    [null, null, null, null, null, null, null, null]
+                ]
+            },
+            {
+                title: "Combinação 3: Captura em Coroa",
+                desc: "Transformação em dama após sequência de capturas",
+                setup: [
+                    [null, null, null, null, null, null, null, 'manOpponent'],
+                    [null, null, null, null, null, null, 'manOpponent', null],
+                    [null, null, null, null, null, 'man', null, null],
+                    [null, null, null, null, null, null, null, null],
+                    [null, null, null, null, null, null, null, null],
+                    [null, null, null, null, null, null, null, null],
+                    [null, null, null, null, null, null, null, null],
+                    [null, null, null, null, null, null, null, null]
+                ]
+            }
+        ];
+        
+        // Inicializar tabuleiro
+        function initBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const square = document.createElement('div');
+                    square.className = `square ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
+                    square.dataset.row = row;
+                    square.dataset.col = col;
+                    square.onclick = () => handleSquareClick(row, col);
+                    boardEl.appendChild(square);
+                }
+            }
+            
+            renderBoard();
+        }
+        
+        // Renderizar tabuleiro
+        function renderBoard() {
+            const squares = document.querySelectorAll('.square');
+            squares.forEach(square => {
+                const row = parseInt(square.dataset.row);
+                const col = parseInt(square.dataset.col);
+                const piece = board[row][col];
+                
+                square.innerHTML = piece ? `<span class="piece">${piece}</span>` : '';
+                square.classList.remove('selected');
+            });
+            
+            if (selectedPiece) {
+                const selSquare = document.querySelector(`.square[data-row="${selectedPiece.row}"][data-col="${selectedPiece.col}"]`);
+                if (selSquare) selSquare.classList.add('selected');
+            }
+        }
+        
+        // Manipular clique
+        function handleSquareClick(row, col) {
+            const piece = board[row][col];
+            
+            if (selectedPiece) {
+                // Tentar mover
+                if (piece) {
+                    // Selecionar nova peça
+                    selectedPiece = { row, col, piece };
+                } else {
+                    // Mover peça
+                    movePiece(selectedPiece.row, selectedPiece.col, row, col);
+                    selectedPiece = null;
+                }
+            } else if (piece) {
+                // Selecionar peça
+                selectedPiece = { row, col, piece };
+            }
+            
+            renderBoard();
+        }
+        
+        // Mover peça
+        function movePiece(fromRow, fromCol, toRow, toCol) {
+            const piece = board[fromRow][fromCol];
+            if (!piece) return;
+            
+            // Animação se habilitada
+            if (animationEnabled) {
+                animateMove(fromRow, fromCol, toRow, toCol, piece);
+            } else {
+                board[toRow][toCol] = piece;
+                board[fromRow][fromCol] = null;
+                
+                // Promoção a dama
+                if (piece === 'man' && toRow === 0) {
+                    board[toRow][toCol] = 'king';
+                } else if (piece === 'manOpponent' && toRow === 7) {
+                    board[toRow][toCol] = 'kingOpponent';
+                }
+            }
+            
+            updateStatus('Peça movida!');
+            renderBoard();
+        }
+        
+        // Animar movimento
+        function animateMove(fromRow, fromCol, toRow, toCol, piece) {
+            const fromSquare = document.querySelector(`.square[data-row="${fromRow}"][data-col="${fromCol}"]`);
+            const toSquare = document.querySelector(`.square[data-row="${toRow}"][data-col="${toCol}"]`);
+            
+            if (fromSquare && toSquare) {
+                const pieceEl = fromSquare.querySelector('.piece');
+                if (pieceEl) {
+                    const rect1 = fromSquare.getBoundingClientRect();
+                    const rect2 = toSquare.getBoundingClientRect();
+                    
+                    pieceEl.style.transition = 'all 0.5s ease';
+                    pieceEl.style.transform = `translate(${rect2.left - rect1.left}px, ${rect2.top - rect1.top}px)`;
+                    
+                    setTimeout(() => {
+                        board[toRow][toCol] = piece;
+                        board[fromRow][fromCol] = null;
+                        renderBoard();
+                    }, 500);
+                }
+            }
+        }
+        
+        // Carregar combinação
+        function loadCombination(index) {
+            currentCombination = (index - 1 + combinations.length) % combinations.length;
+            const combo = combinations[currentCombination];
+            
+            board = combo.setup.map(row => [...row]);
+            renderBoard();
+            
+            document.getElementById('combo-title').textContent = combo.title;
+            document.getElementById('combo-desc').textContent = combo.desc;
+            updateStatus(`Carregado: ${combo.title}`);
+        }
+        
+        // Próxima combinação
+        function nextCombination() {
+            loadCombination(currentCombination + 1);
+        }
+        
+        // Combinação anterior
+        function prevCombination() {
+            loadCombination(currentCombination - 1);
+        }
+        
+        // Carregar exemplo
+        function loadExample() {
+            loadCombination(1);
+        }
+        
+        // Limpar tabuleiro
+        function clearBoard() {
+            board = Array(8).fill(null).map(() => Array(8).fill(null));
+            selectedPiece = null;
+            renderBoard();
+            updateStatus('Tabuleiro limpo');
+        }
+        
+        // Toggle animação
+        function toggleAnimation() {
+            animationEnabled = !animationEnabled;
+            updateStatus(animationEnabled ? 'Animação habilitada ✨' : 'Animação desabilitada');
+        }
+        
+        // Atualizar status
+        function updateStatus(text) {
+            document.getElementById('status').textContent = text;
+        }
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', initBoard);
+    </script>
+</body>
+</html>
